@@ -1,9 +1,20 @@
 console.log("\n %c Cat-Abstract-AI (Forked from Post-Abstract-AI) 开源博客文章摘要AI生成工具 %c https://github.com/zkeq/Cat-Abstract-AI \n", "color: #fadfa3; background: #030307; padding:5px 0;", "background: #fadfa3; padding:5px 0;")
 
+// 默认配置
+const AIAbstractorConfig = {
+  appName: "AI摘要工具", // 应用名称，用于UI显示和控制台输出
+  classNamePrefix: "ai-abstractor", // 用于生成HTML元素的类名和ID前缀
+  apiEndpoint: "https://hub.onmicrosoft.cn/chat/stream", // 默认API端点
+  apiKey: "", // 默认API Key为空，需要用户自行配置
+  postSelector: ".post-content", // 文章内容的CSS选择器
+  wordLimit: 720, // 摘要的字数限制
+  postURL: undefined, // 匹配文章URL的规则，undefined表示不限制
+};
+
 // 1. 读取文章已有的描述
 // 2. 增加按钮 AI 描述
 
-let StreamCatGPTFetchWait = false;
+let StreamAIAbstractorFetchWait = false;
 
 function insertAIDiv(selector) {
   // 首先移除现有的 "post-TianliGPT" 类元素（如果有的话）
@@ -19,14 +30,14 @@ function insertAIDiv(selector) {
 
   // 创建要插入的HTML元素
   const aiDiv = document.createElement('div');
-  aiDiv.className = 'post-TianliGPT';
+  aiDiv.className = `post-${AIAbstractorConfig.classNamePrefix}`;
 
   const aiTitleDiv = document.createElement('div');
-  aiTitleDiv.className = 'tianliGPT-title';
+  aiTitleDiv.className = `${AIAbstractorConfig.classNamePrefix}-title`;
   aiDiv.appendChild(aiTitleDiv);
 
   const aiIcon = document.createElement('i');
-  aiIcon.className = 'tianliGPT-title-icon';
+  aiIcon.className = `${AIAbstractorConfig.classNamePrefix}-title-icon`;
   aiTitleDiv.appendChild(aiIcon);
 
   // 插入 SVG 图标
@@ -38,30 +49,30 @@ function insertAIDiv(selector) {
   </svg>`
 
   const aiTitleTextDiv = document.createElement('div');
-  aiTitleTextDiv.className = 'tianliGPT-title-text';
-  aiTitleTextDiv.textContent = 'AI摘要';
+  aiTitleTextDiv.className = `${AIAbstractorConfig.classNamePrefix}-title-text`;
+  aiTitleTextDiv.textContent = AIAbstractorConfig.appName;
   aiTitleDiv.appendChild(aiTitleTextDiv);
 
   const aiToggleDiv = document.createElement('div');
-  aiToggleDiv.id = 'tianliGPT-Toggle';
+  aiToggleDiv.id = `${AIAbstractorConfig.classNamePrefix}-Toggle`;
   aiToggleDiv.textContent = '切换';
-  // 点击时触发 runTianliGPT 函数
-  aiToggleDiv.addEventListener('click', runTianliGPT);
+  // 点击时触发 runAIAbstractor 函数
+  aiToggleDiv.addEventListener('click', runAIAbstractor);
   aiTitleDiv.appendChild(aiToggleDiv);
 
   const aiTagDiv = document.createElement('div');
-  aiTagDiv.className = 'tianliGPT-tag';
-  aiTagDiv.id = 'tianliGPT-tag';
-  aiTagDiv.textContent = 'CatGPT - TianliGPT(1)';
+  aiTagDiv.className = `${AIAbstractorConfig.classNamePrefix}-tag`;
+  aiTagDiv.id = `${AIAbstractorConfig.classNamePrefix}-tag`;
+  aiTagDiv.textContent = `CatGPT - ${AIAbstractorConfig.appName}(1)`;
   aiTagDiv.addEventListener('click', () => {
     window.open('https://catgpt.miaorun.dev/', '_blank');
   });
   aiTitleDiv.appendChild(aiTagDiv);
 
   const aiExplanationDiv = document.createElement('div');
-  aiExplanationDiv.className = 'tianliGPT-explanation';
+  aiExplanationDiv.className = `${AIAbstractorConfig.classNamePrefix}-explanation`;
   aiExplanationDiv.innerHTML = '生成中...' + '<span class="blinking-cursor"></span>';
-  aiDiv.appendChild(aiExplanationDiv); // 将 tianliGPT-explanation 插入到 aiDiv，而不是 aiTitleDiv
+  aiDiv.appendChild(aiExplanationDiv); // 将 AI摘要工具-explanation 插入到 aiDiv，而不是 aiTitleDiv
 
   // 将创建的元素插入到目标元素的顶部
   targetElement.insertBefore(aiDiv, targetElement.firstChild);
@@ -69,7 +80,7 @@ function insertAIDiv(selector) {
 
 function removeExistingAIDiv() {
   // 查找具有 "post-TianliGPT" 类的元素
-  const existingAIDiv = document.querySelector(".post-TianliGPT");
+  const existingAIDiv = document.querySelector(`.post-${AIAbstractorConfig.classNamePrefix}`);
 
   // 如果找到了这个元素，就从其父元素中删除它
   if (existingAIDiv) {
@@ -77,14 +88,14 @@ function removeExistingAIDiv() {
   }
 }
 
-var tianliGPT = {
+var AIAbstractor = {
   //读取文章中的所有文本
   getTitleAndContent: function() {
     try {
       const title = document.title;
-      const container = document.querySelector(tianliGPT_postSelector);
+      const container = document.querySelector(AIAbstractorConfig.postSelector);
       if (!container) {
-        console.warn('TianliGPT：找不到文章容器。请尝试将引入的代码放入到文章容器之后。如果本身没有打算使用摘要功能可以忽略此提示。');
+        console.warn(`${AIAbstractorConfig.appName}：找不到文章容器。请尝试将引入的代码放入到文章容器之后。如果本身没有打算使用摘要功能可以忽略此提示。`);
         return '';
       }
       const paragraphs = container.getElementsByTagName('p');
@@ -102,42 +113,44 @@ var tianliGPT = {
       }
   
       const combinedText = title + ' ' + content;
-      let wordLimit = 720;
-      if (typeof tianliGPT_wordLimit !== "undefined") {
-        wordLimit = tianliGPT_wordLimit;
-      }
+      let wordLimit = AIAbstractorConfig.wordLimit;
+      // 旧的全局变量兼容代码已移除
       const truncatedText = combinedText.substring(0, wordLimit).split('|&|').slice(0, -1).join(' ');
       return truncatedText;
     } catch (e) {
-      console.error('TianliGPT错误：可能由于一个或多个错误导致没有正常运行，原因出在获取文章容器中的内容失败，或者可能是在文章转换过程中失败。', e);
+      console.error(`${AIAbstractorConfig.appName}错误：可能由于一个或多个错误导致没有正常运行，原因出在获取文章容器中的内容失败，或者可能是在文章转换过程中失败。`, e);
       return '';
     }
   },
   
-  fetchTianliGPT: async function(content) {
+  fetchAPI: async function(content) {
 
     content = "生成30字以内的摘要供读者阅读,不要带“生成的摘要如下”这样的问候信息,我给你的文章内容是:" + content
+    const apiUrl = AIAbstractorConfig.apiEndpoint; // 使用配置的API端点
 
-    const apiUrl = `https://hub.onmicrosoft.cn/chat/stream?q=${encodeURIComponent(content)}`;
-    // const timeout = 20000; // 设置超时时间（毫秒）
-  
-    document.querySelector('.tianliGPT-explanation').innerHTML = '生成中...' + '<span class="blinking-cursor"></span>';
+    if (!apiUrl) {
+      console.error(`${AIAbstractorConfig.appName}错误：API端点未配置。`);
+      document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = '获取文章摘要失败：API端点未配置。';
+      return;
+    }
+    
+    document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = '生成中...' + '<span class="blinking-cursor"></span>';
 
     try {
-        const eventSource = new EventSource(apiUrl);
-        StreamCatGPTFetchWait = true;
+        const eventSource = new EventSource(`${apiUrl}?q=${encodeURIComponent(content)}&apiKey=${encodeURIComponent(AIAbstractorConfig.apiKey)}`); // 传入API Key
+        StreamAIAbstractorFetchWait = true;
 
         eventSource.addEventListener('message',  (event) => {
           if ("[DONE]" == event.data) {
               // 去除光标
               document.querySelector('.blinking-cursor').remove();
               eventSource.close();
-              StreamCatGPTFetchWait = false;
+              StreamAIAbstractorFetchWait = false;
               return;
           }
 
         this.Steam = JSON.parse(event.data).message.content.parts[0]
-        document.querySelector('.tianliGPT-explanation').innerHTML = this.Steam + '<span class="blinking-cursor"></span>';
+        document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = this.Steam + '<span class="blinking-cursor"></span>';
       });
   
       eventSource.addEventListener('error', function(event) {
@@ -149,38 +162,36 @@ var tianliGPT = {
         if (error.name === 'AbortError') {
             if (window.location.hostname === 'localhost') {
                 console.warn('警告：请勿在本地主机上测试 API 密钥。');
-                return '获取文章摘要超时。请勿在本地主机上测试 API 密钥。';
+                document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = '获取文章摘要超时。请勿在本地主机上测试 API 密钥。';
             } else {
                 console.error('请求超时');
-                return '获取文章摘要超时。当你出现这个问题时，可能是key或者绑定的域名不正确。也可能是因为文章过长导致的 AI 运算量过大，您可以稍等一下然后刷新页面重试。';
+                document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = '获取文章摘要超时。当你出现这个问题时，可能是key或者绑定的域名不正确。也可能是因为文章过长导致的 AI 运算量过大，您可以稍等一下然后刷新页面重试。';
             }
         } else {
             console.error('请求失败：', error);
-            return '获取文章摘要失败，请稍后再试。';
+            document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = '获取文章摘要失败，请稍后再试。';
         }
     }
+  }
 }
 
-
-}
-
-function runTianliGPT() {
-  if (StreamCatGPTFetchWait){
-    console.log('TianliGPT：正在等待上一次请求的返回结果，本次请求将被忽略。');
+function runAIAbstractor() {
+  if (StreamAIAbstractorFetchWait){
+    console.log(`${AIAbstractorConfig.appName}：正在等待上一次请求的返回结果，本次请求将被忽略。`);
     return;
   }
-  const content = tianliGPT.getTitleAndContent();
+  const content = AIAbstractor.getTitleAndContent();
   if (content && content !== '') {
-    console.log('TianliGPT本次提交的内容为：' + content);
+    console.log(`${AIAbstractorConfig.appName}本次提交的内容为：` + content);
   }else{
     return;
   }
-  tianliGPT.fetchTianliGPT(content);
+  AIAbstractor.fetchAPI(content);
 }
 
 function checkURLAndRun() {
-  if (typeof tianliGPT_postURL === "undefined") {
-    initRun(); // 如果没有设置自定义 URL，则直接执行 runTianliGPT() 函数
+  if (typeof AIAbstractorConfig.postURL === "undefined") { // 使用配置的URL规则
+    initRun(); // 如果没有设置自定义 URL，则直接执行 initRun() 函数
     return;
   }
 
@@ -193,28 +204,28 @@ function checkURLAndRun() {
       return s.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
     };
 
-    const urlPattern = wildcardToRegExp(tianliGPT_postURL);
+    const urlPattern = wildcardToRegExp(AIAbstractorConfig.postURL);
     const currentURL = window.location.href;
 
     if (urlPattern.test(currentURL)) {
-      initRun(); // 如果当前 URL 符合用户设置的 URL，则执行 runTianliGPT() 函数
+      initRun(); // 如果当前 URL 符合用户设置的 URL，则执行 initRun() 函数
     } else {
-      console.log("TianliGPT：因为不符合自定义的链接规则，我决定不执行摘要功能。");
+      console.log(`${AIAbstractorConfig.appName}：因为不符合自定义的链接规则，我决定不执行摘要功能。`);
     }
   } catch (error) {
-    console.error("TianliGPT：我没有看懂你编写的自定义链接规则，所以我决定不执行摘要功能", error);
+    console.error(`${AIAbstractorConfig.appName}：我没有看懂你编写的自定义链接规则，所以我决定不执行摘要功能`, error);
   }
 }
 
 function fillDescriptionContent() {
   let descriptionElement = document.querySelector('meta[name="description"]');
   if (descriptionElement) {
-    document.querySelector('.tianliGPT-explanation').innerHTML = descriptionElement.content;
+    document.querySelector(`.${AIAbstractorConfig.classNamePrefix}-explanation`).innerHTML = descriptionElement.content;
   }
 }
 
 function initRun() {
-  insertAIDiv(tianliGPT_postSelector);
+  insertAIDiv(AIAbstractorConfig.postSelector); // 使用配置的文章选择器
   fillDescriptionContent();
 }
 
