@@ -148,7 +148,7 @@
 }
 
 /* AI */
-.post-TianliGPT {
+.post-ai-abstractor {
   background: var(--heo-secondbg);
   border-radius: 12px;
   padding: 12px;
@@ -158,12 +158,12 @@
 }
 
 @media screen and (max-width: 768px) {
-  .post-TianliGPT {
+  .post-ai-abstractor {
     margin-top: 22px;
   }
 }
 
-.tianliGPT-title {
+.ai-abstractor-title {
   display: flex;
   color: var(--heo-lighttext);
   border-radius: 8px;
@@ -173,13 +173,13 @@
   user-select: none;
 }
 
-.tianliGPT-title-text {
+.ai-abstractor-title-text {
   font-weight: bold;
   margin-left: 8px;
   line-height: 1;
 }
 
-.tianliGPT-explanation {
+.ai-abstractor-explanation {
   margin-top: 12px;
   padding: 8px 12px;
   background: var(--heo-card-bg);
@@ -189,12 +189,12 @@
   line-height: 1.4;
 }
 
-.tianliGPT-suggestions {
+.ai-abstractor-suggestions {
   display: flex;
   flex-wrap: wrap;
 }
 
-.tianliGPT-suggestions .tianliGPT-suggestions-item {
+.ai-abstractor-suggestions .ai-abstractor-suggestions-item {
   margin-top: 12px;
   padding: 8px 12px;
   background: var(--heo-card-bg);
@@ -209,7 +209,7 @@
   transition: 0.3s;
 }
 
-.tianliGPT-suggestions .tianliGPT-suggestions-item:hover {
+.ai-abstractor-suggestions .ai-abstractor-suggestions-item:hover {
   background: var(--heo-main);
   color: var(--heo-white);
 }
@@ -247,7 +247,7 @@
   }
 }
 
-#tianliGPT-Toggle {
+#ai-abstractor-Toggle {
   font-size: 12px;
   background: var(--heo-lighttext);
   color: var(--heo-card-bg);
@@ -260,12 +260,12 @@
   font-weight: bold;
 }
 
-#tianliGPT-Toggle:hover {
+#ai-abstractor-Toggle:hover {
   background: var(--heo-fontcolor);
   color: var(--heo-card-bg);
 }
 
-.tianliGPT-tag {
+.ai-abstractor-tag {
   font-size: 12px;
   background-color: var(--heo-lighttext);
   color: var(--heo-card-bg);
@@ -281,7 +281,7 @@
   transition: 0.3s;
 }
 
-.tianliGPT-tag:hover {
+.ai-abstractor-tag:hover {
   background: var(--heo-fontcolor);
   color: var(--heo-card-bg);
 }
@@ -294,7 +294,7 @@ ins.adsbygoogle {
   border: var(--style-border-always);
 }
 
-#tianliGPT-Toggle {
+#ai-abstractor-Toggle {
   font-size: 12px;
   background: var(--heo-lighttext);
   color: var(--heo-card-bg);
@@ -307,22 +307,22 @@ ins.adsbygoogle {
   font-weight: bold;
 }
 
-#tianliGPT-Toggle:hover {
+#ai-abstractor-Toggle:hover {
   background: var(--heo-fontcolor);
   color: var(--heo-card-bg);
 }
 
-.tianliGPT-title-icon {
+.ai-abstractor-title-icon {
   width: 20px;
   height: 20px;
 }
 
-.tianliGPT-title-icon svg {
+.ai-abstractor-title-icon svg {
   width: 20px;
   height: 20px;
   fill: var(--heo-main);
 }
 
-.tianliGPT-title-icon svg path {
+.ai-abstractor-title-icon svg path {
   fill: var(--heo-main);
 }
